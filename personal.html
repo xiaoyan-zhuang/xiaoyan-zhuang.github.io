@@ -382,13 +382,13 @@
       margin: 8px 0 0;
       padding: 0;
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 18px;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 16px;
       text-align: center;
     }
     .port-list .tag { display: block; margin-bottom: 6px; font: 700 11px/1 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
     .port-list h3 { margin: 0 0 4px; font-size: 19px; line-height: 1.25; }
-    .port-list p { margin: 0; font-size: 15px; color: var(--muted); }
+    .port-list p { margin: 0; font-size: 14px; line-height: 1.45; color: var(--muted); }
     .port-list .here .tag { color: var(--accent); }
     .port-list .next .tag { color: var(--brass); }
 
@@ -672,7 +672,7 @@
         </p>
         <dl class="position reveal">
           <dt>Position</dt><dd>40°47′N 77°51′W · State College, PA</dd>
-          <dt>Heading</dt><dd>2026–27 economics job market</dd>
+          <dt>Heading</dt><dd>Unknown waters</dd>
           <dt>Status</dt><dd><span class="live-dot"></span>Under way</dd>
         </dl>
       </div>
@@ -688,14 +688,15 @@
       </div>
       <div class="route reveal">
         <svg viewBox="0 0 1000 200" aria-hidden="true">
-          <path class="guide" d="M125 150 C210 40 300 40 375 110 S540 190 625 120 C710 50 790 40 875 90"/>
-          <path class="sailed" id="sailed" d="M125 150 C210 40 300 40 375 110 S540 190 625 120"/>
-          <circle class="port" cx="125" cy="150" r="9"/>
-          <circle class="port" cx="375" cy="110" r="9"/>
-          <circle class="here-ring" cx="625" cy="120" r="9"/>
-          <circle class="port here" cx="625" cy="120" r="9"/>
-          <circle class="port next" cx="875" cy="90" r="11"/>
-          <text x="875" y="95" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="700" fill="#b08d57">?</text>
+          <path class="guide" d="M100 150 C190 150 210 70 300 70 C390 70 410 140 500 140 C590 140 610 100 700 100 C790 100 810 60 900 60"/>
+          <path class="sailed" id="sailed" d="M100 150 C190 150 210 70 300 70 C390 70 410 140 500 140 C590 140 610 100 700 100"/>
+          <circle class="port" cx="100" cy="150" r="9"/>
+          <circle class="port" cx="300" cy="70" r="9"/>
+          <circle class="port" cx="500" cy="140" r="9"/>
+          <circle class="here-ring" cx="700" cy="100" r="9"/>
+          <circle class="port here" cx="700" cy="100" r="9"/>
+          <circle class="port next" cx="900" cy="60" r="11"/>
+          <text x="900" y="65" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="700" fill="#b08d57">?</text>
           <g id="routeShip">
             <g transform="scale(1.6) translate(-18 -22)">
               <path d="M2 16 H34 L30 24 H6 Z" fill="#0e2235"/>
@@ -707,26 +708,30 @@
           </g>
         </svg>
         <ol class="port-list">
-          <!-- ✎ EDIT: fill in the first two ports -->
           <li>
             <span class="tag">Home port</span>
-            <h3>Your hometown</h3>
+            <h3>Guangzhou</h3>
             <p>Where the voyage started.</p>
           </li>
           <li>
-            <span class="tag">Waypoint</span>
-            <h3>Your previous university</h3>
-            <p>Degree · years.</p>
+            <span class="tag">2016–2020</span>
+            <h3>HKUST, Hong Kong</h3>
+            <p>B.Sc. in Mathematics and Economics, with an exchange at Columbia in 2019.</p>
+          </li>
+          <li>
+            <span class="tag">2020–2021</span>
+            <h3>Hong Kong</h3>
+            <p>Research Analyst at UBS Global Wealth Management (CIO), then Market Analyst at HSBC.</p>
           </li>
           <li class="here">
-            <span class="tag">You are here</span>
+            <span class="tag">2021– · You are here</span>
             <h3>State College, PA</h3>
             <p>Ph.D. in Economics, Penn State.</p>
           </li>
           <li class="next">
             <span class="tag">Next port</span>
-            <h3>To be announced</h3>
-            <p>On the 2026–27 job market.</p>
+            <h3>Unknown waters</h3>
+            <p>The chart is not drawn yet.</p>
           </li>
         </ol>
       </div>
@@ -774,9 +779,9 @@
           <p>job market paper on container shipping alliances</p>
         </div>
         <div class="box" style="--c:#183a59">
-          <span class="code">XZHU 202627</span>
-          <span class="num">2026–27</span>
-          <p>the season I am on the economics job market</p>
+          <span class="code">XZHU 000004</span>
+          <span class="num" data-count="4">0</span>
+          <p>cities on the route so far: Guangzhou, Hong Kong, New York, State College</p>
         </div>
         <div class="box" style="--c:#2f6f73">
           <span class="code">XZHU 000080</span>
