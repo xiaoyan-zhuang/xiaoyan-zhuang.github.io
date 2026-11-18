@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Personal | Xiaoyan Zhuang</title>
+  <meta name="description" content="Off the clock: the personal logbook of Xiaoyan Zhuang.">
+  <style>
+    :root {
+      --ink: #1c2430;
+      --muted: #5f6b7a;
+      --line: #d6dce4;
+      --paper: #fcfaf6;
+      --parchment: #f5efe3;
+      --accent: #8d1d2c;
+      --accent-dark: #67141f;
+      --navy: #183a59;
+      --deep: #0b1a2a;
+      --brass: #b08d57;
+      --brass-light: #d8bf8c;
+      --teal: #2f6f73;
+      --max: 1120px;
+      --sans: Arial, Helvetica, sans-serif;
+      --mono: "Courier New", Courier, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 17px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    body.sailing { overflow: hidden; }
+
+    a { color: var(--accent); text-underline-offset: 0.16em; text-decoration-thickness: 0.08em; }
+    a:hover { color: var(--accent-dark); }
+
+    /* ───────────────────────── Voyage intro ───────────────────────── */
+    .voyage {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: linear-gradient(180deg, #0b1a2a 0%, #10273f 55%, #1b4266 100%);
+      color: #f3ead7;
+      transform: translateY(0);
+      transition: transform 1.35s cubic-bezier(.76, 0, .24, 1);
+    }
+    .voyage.leave { transform: translateY(calc(100% + 70px)); }
+    .voyage[hidden] { display: none; }
+
+    /* wavy top edge, only visible while the tide drains down */
+    .tide-edge {
+      position: absolute;
+      left: 0; right: 0;
+      top: -59px;
+      height: 60px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30 Q90 6 180 30 T360 30 T540 30 T720 30 V60 H0Z' fill='%230b1a2a'/%3E%3C/svg%3E") repeat-x;
+      background-size: 720px 100%;
+      animation: drift 5s linear infinite;
+    }
+
+    .stars { position: absolute; inset: 0 0 34vh 0; pointer-events: none; }
+    .stars i {
+      position: absolute;
+      width: 2px; height: 2px;
+      border-radius: 50%;
+      background: #fff;
+      opacity: .2;
+      animation: twinkle 3s ease-in-out infinite;
+    }
+
+    .moon {
+      position: absolute;
+      top: 9vh; right: 12vw;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 38%, #fffaf0, #e9dcc0 70%);
+      box-shadow: 0 0 40px 10px rgba(243, 234, 215, .18), 0 0 120px 40px rgba(243, 234, 215, .07);
+    }
+
+    .helm {
+      position: absolute;
+      left: 50%;
+      top: max(6vh, 32px);
+      transform: translateX(-50%);
+      width: min(92vw, 520px);
+      text-align: center;
+      transition: opacity .45s ease, transform .6s ease;
+    }
+    .voyage.leave .helm { opacity: 0; transform: translate(-50%, -24px); }
+
+    .helm .compass {
+      width: min(28vh, 200px);
+      height: min(28vh, 200px);
+      display: block;
+      margin: 0 auto;
+      overflow: visible;
+    }
+    .compass .ring { fill: none; stroke: var(--brass-light); stroke-width: 1.2; }
+    .compass .ring.thin { stroke-width: .6; opacity: .7; }
+    .compass .tick { stroke: var(--brass-light); stroke-width: .8; }
+    .compass .tick.major { stroke-width: 1.4; }
+    .compass .letter { fill: #f3ead7; font: 700 13px Georgia, serif; text-anchor: middle; dominant-baseline: central; }
+    .compass .rose-light { fill: #f3ead7; }
+    .compass .rose-dark { fill: #9c8255; }
+    .compass .needle-n { fill: #c23a4a; }
+    .compass .needle-s { fill: #e9e4d8; }
+    .compass .cap { fill: var(--brass); stroke: #f3ead7; stroke-width: 1; }
+
+    .helm-label {
+      margin: 18px 0 2px;
+      font: 700 12px/1 var(--sans);
+      letter-spacing: .32em;
+      text-transform: uppercase;
+      color: var(--brass-light);
+      opacity: 0;
+    }
+    .helm-coords {
+      margin: 6px 0 0;
+      font: 15px/1.4 var(--mono);
+      letter-spacing: .06em;
+      color: #f3ead7;
+      opacity: 0;
+    }
+    .helm-title {
+      margin: 18px 0 0;
+      opacity: 0;
+    }
+    .helm-title small {
+      display: block;
+      font: 700 12px/1 var(--sans);
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: #9fb4c8;
+      margin-bottom: 10px;
+    }
+    .helm-title strong {
+      display: block;
+      font: italic 400 clamp(34px, 6vw, 52px)/1.05 Georgia, serif;
+      color: #fffaf0;
+    }
+
+    .sea {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 34vh;
+      background: linear-gradient(180deg, #0f2a45 0%, #081727 100%);
+    }
+    .wave {
+      position: absolute;
+      left: 0; right: 0;
+      height: 60px;
+      background-repeat: repeat-x;
+      background-size: 720px 100%;
+    }
+    .wave.back {
+      top: -46px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30 Q90 8 180 30 T360 30 T540 30 T720 30 V60 H0Z' fill='%232b5b82'/%3E%3C/svg%3E");
+      animation: drift 9s linear infinite reverse;
+      opacity: .75;
+    }
+    .wave.mid {
+      top: -32px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30 Q90 10 180 30 T360 30 T540 30 T720 30 V60 H0Z' fill='%231a3f62'/%3E%3C/svg%3E");
+      background-size: 560px 100%;
+      animation: drift-sm 6s linear infinite;
+    }
+    .wave.front {
+      top: -18px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30 Q90 12 180 30 T360 30 T540 30 T720 30 V60 H0Z' fill='%230f2a45'/%3E%3C/svg%3E");
+      animation: drift 4.5s linear infinite;
+    }
+    .moonpath {
+      position: absolute;
+      top: 10px;
+      right: calc(12vw - 40px);
+      width: 120px;
+      height: 70%;
+      background: repeating-linear-gradient(180deg, rgba(243, 234, 215, .28) 0 3px, transparent 3px 14px);
+      -webkit-mask-image: radial-gradient(ellipse 50% 60% at 50% 20%, #000 10%, transparent 75%);
+              mask-image: radial-gradient(ellipse 50% 60% at 50% 20%, #000 10%, transparent 75%);
+      animation: shimmer 2.4s ease-in-out infinite;
+    }
+
+    .ship-track { position: absolute; left: 0; right: 0; top: 0; height: 0; }
+    .ship {
+      position: absolute;
+      bottom: -12px;
+      left: 0;
+      width: 240px;
+      transform: translateX(-280px);
+    }
+    .ship svg { display: block; width: 100%; height: auto; transform-origin: 50% 85%; animation: bob 1.8s ease-in-out infinite; }
+    .ship .wake {
+      position: absolute;
+      right: 100%;
+      bottom: 16px;
+      width: 0;
+      height: 3px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .5));
+    }
+
+    .skip {
+      position: absolute;
+      right: 20px; bottom: 20px;
+      z-index: 3;
+      padding: 8px 14px;
+      border: 1px solid rgba(243, 234, 215, .35);
+      border-radius: 999px;
+      background: rgba(11, 26, 42, .5);
+      color: #f3ead7;
+      font: 700 12px/1 var(--sans);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .skip:hover, .skip:focus-visible { background: rgba(243, 234, 215, .12); outline: none; border-color: #f3ead7; }
+
+    /* the choreography runs only while .run is on */
+    .voyage.run .compass .ring { stroke-dasharray: 600; stroke-dashoffset: 600; animation: draw 1.3s .15s ease-out forwards; }
+    .voyage.run .compass .ticks { opacity: 0; animation: fade .6s .55s ease forwards; }
+    .voyage.run .compass .rose { transform: scale(.2) rotate(-90deg); opacity: 0; animation: rose .8s .55s cubic-bezier(.2, .9, .3, 1.2) forwards; }
+    .voyage.run .compass .letters { opacity: 0; animation: fade .6s .9s ease forwards; }
+    .voyage.run .compass .needle { animation: needle 2.1s .5s cubic-bezier(.15, .7, .25, 1) both; }
+    .voyage.run .helm-label { animation: rise .6s .45s ease forwards; }
+    .voyage.run .helm-coords { animation: rise .6s .7s ease forwards; }
+    .voyage.run .helm-title { animation: rise .8s 2.3s ease forwards; }
+    .voyage.run .ship { animation: sail 3.7s .55s cubic-bezier(.42, 0, .5, 1) forwards; }
+    .voyage.run .ship .wake { animation: wake 3.7s .55s ease forwards; }
+
+    @keyframes drift { to { background-position-x: -720px; } }
+    @keyframes drift-sm { to { background-position-x: -560px; } }
+    @keyframes twinkle { 0%, 100% { opacity: .15; } 50% { opacity: .9; } }
+    @keyframes shimmer { 0%, 100% { opacity: .55; transform: scaleX(1); } 50% { opacity: .9; transform: scaleX(1.15); } }
+    @keyframes bob { 0%, 100% { transform: rotate(-1.6deg) translateY(0); } 50% { transform: rotate(1.4deg) translateY(3px); } }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+    @keyframes fade { to { opacity: 1; } }
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    @keyframes rose { to { transform: none; opacity: 1; } }
+    @keyframes needle {
+      0% { transform: rotate(-760deg); }
+      72% { transform: rotate(14deg); }
+      86% { transform: rotate(-6deg); }
+      100% { transform: rotate(0deg); }
+    }
+    @keyframes sail {
+      from { transform: translateX(-280px); }
+      to { transform: translateX(calc(100vw + 60px)); }
+    }
+    @keyframes wake { 0% { width: 0; } 40% { width: 160px; } 100% { width: 260px; opacity: .6; } }
+
+    /* ───────────────────────── Page ───────────────────────── */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 18px max(28px, calc((100vw - var(--max)) / 2));
+      border-bottom: 1px solid rgba(214, 220, 228, .8);
+      background: rgba(252, 250, 246, .9);
+      -webkit-backdrop-filter: blur(8px);
+              backdrop-filter: blur(8px);
+    }
+    .brand { color: var(--ink); font-weight: 700; text-decoration: none; }
+    .brand:hover { color: var(--accent); }
+    .site-nav { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 14px; }
+    .site-nav a { color: var(--ink); text-decoration: none; position: relative; }
+    .site-nav a:hover { color: var(--accent); }
+    .site-nav a[aria-current="page"] { color: var(--accent); }
+    .site-nav a[aria-current="page"]::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: -4px;
+      height: 2px;
+      background: var(--accent);
+    }
+
+    main { width: min(var(--max), calc(100% - 48px)); margin: 0 auto; }
+
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 48px;
+      align-items: center;
+      padding: 80px 0 64px;
+      border-bottom: 2px solid var(--ink);
+      isolation: isolate;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0 calc(50% - 50vw);
+      z-index: -1;
+      background:
+        repeating-linear-gradient(0deg, rgba(24, 58, 89, .06) 0 1px, transparent 1px 64px),
+        repeating-linear-gradient(90deg, rgba(24, 58, 89, .06) 0 1px, transparent 1px 64px);
+      -webkit-mask-image: linear-gradient(180deg, #000 30%, transparent);
+              mask-image: linear-gradient(180deg, #000 30%, transparent);
+    }
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font: 700 13px/1.2 var(--sans);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 0; font-size: clamp(42px, 6vw, 64px); line-height: 1.05; color: #111820; font-weight: 400; font-style: italic; }
+    .lede { max-width: 620px; margin: 22px 0 28px; font-size: 19px; color: #34404f; }
+
+    .position {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 6px 18px;
+      margin: 0;
+      padding: 16px 20px;
+      max-width: 560px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--navy);
+      background: rgba(255, 255, 255, .7);
+      font-family: var(--mono);
+      font-size: 14px;
+    }
+    .position dt { color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-size: 12px; padding-top: 2px; }
+    .position dd { margin: 0; color: var(--ink); }
+    .live-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      margin-right: 6px;
+      border-radius: 50%;
+      background: #2e8b57;
+      box-shadow: 0 0 0 0 rgba(46, 139, 87, .5);
+      animation: ping 2s infinite;
+      vertical-align: 1px;
+    }
+    @keyframes ping { 70% { box-shadow: 0 0 0 8px rgba(46, 139, 87, 0); } 100% { box-shadow: 0 0 0 0 rgba(46, 139, 87, 0); } }
+
+    .hero-compass { width: 100%; max-width: 320px; justify-self: center; }
+    .hero-compass svg { width: 100%; height: auto; overflow: visible; animation: slowspin 90s linear infinite; }
+    .hero-compass .ring { fill: none; stroke: var(--navy); stroke-width: 1; opacity: .5; }
+    .hero-compass .ring.thin { stroke-width: .5; }
+    .hero-compass .tick { stroke: var(--navy); stroke-width: .7; opacity: .55; }
+    .hero-compass .tick.major { stroke-width: 1.2; }
+    .hero-compass .letter { fill: var(--navy); font: 700 13px Georgia, serif; text-anchor: middle; dominant-baseline: central; }
+    .hero-compass .rose-light { fill: #e7edf3; }
+    .hero-compass .rose-dark { fill: var(--navy); }
+    .hero-compass .needle-n { fill: var(--accent); }
+    .hero-compass .needle-s { fill: #c9d3de; }
+    .hero-compass .cap { fill: var(--brass); stroke: #fff; stroke-width: 1; }
+    .hero-compass .needle { animation: sway 6s ease-in-out infinite; transform-origin: 0 0; }
+    @keyframes slowspin { to { transform: rotate(360deg); } }
+    @keyframes sway { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+
+    .section { padding: 64px 0; border-bottom: 1px solid var(--line); }
+    .section-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin-bottom: 30px; }
+    .section-heading h2 { margin: 0; color: var(--accent); font-size: 30px; font-weight: 700; }
+    .section-heading p { margin: 0; color: var(--muted); font-size: 15px; }
+
+    /* Ports of call */
+    .route { position: relative; }
+    .route svg { display: block; width: 100%; height: auto; overflow: visible; }
+    .route .guide { fill: none; stroke: var(--navy); stroke-width: 2; stroke-dasharray: 2 9; stroke-linecap: round; opacity: .45; }
+    .route .sailed { fill: none; stroke: var(--navy); stroke-width: 3; stroke-linecap: round; }
+    .route .port { fill: var(--paper); stroke: var(--navy); stroke-width: 3; }
+    .route .port.here { fill: var(--accent); stroke: var(--accent); }
+    .route .port.next { stroke: var(--brass); stroke-dasharray: 4 4; animation: slowspin 12s linear infinite; transform-box: fill-box; transform-origin: center; }
+    .route .here-ring { fill: none; stroke: var(--accent); stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: sonar 2.2s ease-out infinite; }
+    @keyframes sonar { from { transform: scale(1); opacity: .8; } to { transform: scale(3.2); opacity: 0; } }
+
+    .port-list {
+      list-style: none;
+      margin: 8px 0 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+      text-align: center;
+    }
+    .port-list .tag { display: block; margin-bottom: 6px; font: 700 11px/1 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+    .port-list h3 { margin: 0 0 4px; font-size: 19px; line-height: 1.25; }
+    .port-list p { margin: 0; font-size: 15px; color: var(--muted); }
+    .port-list .here .tag { color: var(--accent); }
+    .port-list .next .tag { color: var(--brass); }
+
+    /* On deck */
+    .deck-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+    .card {
+      position: relative;
+      padding: 26px 22px 24px;
+      border: 1px solid #e4dccb;
+      border-radius: 6px;
+      background: var(--parchment);
+      transition: transform .35s cubic-bezier(.2, .8, .2, 1), box-shadow .35s ease;
+    }
+    .card:hover { transform: translateY(-6px) rotate(-.6deg); box-shadow: 0 16px 30px -18px rgba(24, 58, 89, .45); }
+    .card .icon {
+      display: grid;
+      place-items: center;
+      width: 52px; height: 52px;
+      margin-bottom: 16px;
+      border-radius: 50%;
+      background: var(--navy);
+      color: #f3ead7;
+    }
+    .card .icon svg { width: 26px; height: 26px; transition: transform .5s ease; }
+    .card:hover .icon svg { transform: rotate(-14deg); }
+    .card h3 { margin: 0 0 6px; font-size: 20px; }
+    .card p { margin: 0; font-size: 15px; color: #4a5565; }
+
+    /* Cargo manifest */
+    .manifest { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+    .box {
+      position: relative;
+      min-height: 170px;
+      padding: 22px 24px 20px;
+      color: #fff;
+      background-color: var(--c, var(--navy));
+      background-image:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .07) 0 7px, rgba(0, 0, 0, .1) 7px 14px),
+        linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(0, 0, 0, .12));
+      border: 3px solid rgba(0, 0, 0, .18);
+      border-radius: 2px;
+      box-shadow: 0 10px 22px -16px rgba(0, 0, 0, .6);
+      transform: translateY(-40px);
+      opacity: 0;
+      transition: transform .9s cubic-bezier(.3, 1.4, .5, 1), opacity .4s ease;
+    }
+    .box::before, .box::after {
+      content: "";
+      position: absolute;
+      top: -3px;
+      width: 12px; height: 12px;
+      background: rgba(0, 0, 0, .3);
+    }
+    .box::before { left: -3px; }
+    .box::after { right: -3px; }
+    .box.in { transform: none; opacity: 1; }
+    .box:nth-child(2) { transition-delay: .12s; }
+    .box:nth-child(3) { transition-delay: .24s; }
+    .box .code { font: 700 12px/1 var(--mono); letter-spacing: .16em; opacity: .75; }
+    .box .num { display: block; margin: 14px 0 6px; font-size: 46px; line-height: 1; font-weight: 700; }
+    .box p { margin: 0; font-size: 15px; line-height: 1.45; color: rgba(255, 255, 255, .9); }
+    .box small { display: block; margin-top: 8px; font: 11px/1.3 var(--sans); opacity: .7; }
+
+    /* Message in a bottle */
+    .bottle-wrap {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 36px;
+      align-items: center;
+      padding: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--navy), #10273f);
+      color: #f3ead7;
+      overflow: hidden;
+      position: relative;
+    }
+    .bottle-wrap::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 46px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30 Q90 10 180 30 T360 30 T540 30 T720 30 V60 H0Z' fill='%23ffffff' fill-opacity='.07'/%3E%3C/svg%3E") repeat-x;
+      background-size: 480px 100%;
+      animation: drift-sm 7s linear infinite;
+      pointer-events: none;
+    }
+    .bottle { width: 120px; justify-self: center; animation: float 4s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0) rotate(-18deg); } 50% { transform: translateY(-10px) rotate(-10deg); } }
+    .bottle-wrap h2 { margin: 0 0 8px; font-size: 30px; color: #fffaf0; }
+    .bottle-wrap p { margin: 0 0 20px; color: #c9d6e2; max-width: 560px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      border-radius: 999px;
+      background: #f3ead7;
+      color: var(--navy);
+      font: 700 14px/1 var(--sans);
+      letter-spacing: .04em;
+      text-decoration: none;
+      transition: transform .25s ease, background .25s ease;
+    }
+    .btn:hover { color: var(--navy); background: #fff; transform: translateX(4px); }
+
+    footer {
+      width: min(var(--max), calc(100% - 48px));
+      margin: 0 auto;
+      padding: 30px 0 48px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .replay {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--navy);
+      font: inherit;
+      cursor: pointer;
+    }
+    .replay:hover { color: var(--accent); }
+    .replay svg { width: 18px; height: 18px; }
+
+    /* voyage progress rail */
+    .rail {
+      position: fixed;
+      right: 18px;
+      top: 50%;
+      z-index: 5;
+      height: 46vh;
+      width: 2px;
+      transform: translateY(-50%);
+      background: repeating-linear-gradient(180deg, rgba(24, 58, 89, .35) 0 3px, transparent 3px 8px);
+      opacity: 0;
+      transition: opacity .6s ease;
+    }
+    body.ready .rail { opacity: 1; }
+    .rail-ship {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(141, 29, 44, .15);
+      transform: translate(-50%, -50%);
+    }
+
+    /* entrance */
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity .8s ease, transform .8s cubic-bezier(.2, .8, .2, 1); }
+    .reveal.in { opacity: 1; transform: none; }
+    body:not(.ready) .hero .reveal { opacity: 0; transform: translateY(18px); }
+    body.ready .hero .reveal { opacity: 1; transform: none; }
+    body.ready .hero .reveal:nth-child(2) { transition-delay: .1s; }
+    body.ready .hero .reveal:nth-child(3) { transition-delay: .2s; }
+    body.ready .hero .reveal:nth-child(4) { transition-delay: .3s; }
+    body.ready .hero-compass.reveal { transition-delay: .25s; }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding-top: 48px; }
+      .hero-compass { max-width: 200px; grid-row: 1; justify-self: start; }
+      .deck-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .manifest { grid-template-columns: 1fr; }
+      .rail { display: none; }
+    }
+
+    @media (max-width: 680px) {
+      body { font-size: 16px; }
+      main, footer { width: calc(100% - 32px); }
+      .site-header { flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px 16px; }
+      .site-nav { gap: 4px 14px; }
+      .hero-compass { max-width: 140px; }
+      .lede { font-size: 17px; }
+      .position { grid-template-columns: 1fr; gap: 2px; }
+      .position dd { margin-bottom: 8px; }
+      .route svg { display: none; }
+      .port-list { grid-template-columns: 1fr; text-align: left; gap: 0; border-left: 2px dashed rgba(24, 58, 89, .4); margin-left: 8px; }
+      .port-list li { position: relative; padding: 0 0 24px 24px; }
+      .port-list li::before {
+        content: "";
+        position: absolute;
+        left: -9px; top: 2px;
+        width: 12px; height: 12px;
+        border-radius: 50%;
+        border: 3px solid var(--navy);
+        background: var(--paper);
+      }
+      .port-list li.here::before { background: var(--accent); border-color: var(--accent); }
+      .port-list li.next::before { border-color: var(--brass); border-style: dashed; }
+      .deck-grid { grid-template-columns: 1fr; }
+      .bottle-wrap { grid-template-columns: 1fr; padding: 28px 22px 40px; gap: 16px; }
+      .bottle { width: 80px; justify-self: start; }
+      .ship { width: 180px; bottom: -9px; }
+      .port-list li:last-child { padding-bottom: 2px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body class="sailing">
+
+  <!-- ═══════════ Opening voyage ═══════════ -->
+  <div class="voyage run" id="voyage" aria-hidden="true">
+    <div class="tide-edge"></div>
+    <div class="stars" id="stars"></div>
+    <div class="moon"></div>
+
+    <div class="helm">
+      <svg class="compass" id="introCompass" viewBox="-100 -100 200 200"></svg>
+      <p class="helm-label">Plotting a course</p>
+      <p class="helm-coords"><span id="lat">00°00′00″N</span> &nbsp;·&nbsp; <span id="lon">00°00′00″W</span></p>
+      <p class="helm-title"><small>Xiaoyan Zhuang</small><strong>Off the Clock</strong></p>
+    </div>
+
+    <div class="sea">
+      <div class="moonpath"></div>
+      <div class="wave back"></div>
+      <div class="ship-track">
+        <div class="ship">
+          <span class="wake"></span>
+          <svg viewBox="0 0 220 90" id="shipSvg" aria-hidden="true">
+            <!-- funnel + bridge at the stern -->
+            <rect x="31" y="10" width="11" height="14" fill="#8d1d2c"/>
+            <rect x="31" y="10" width="11" height="3" fill="#0b1a2a"/>
+            <rect x="22" y="22" width="28" height="31" fill="#eef2f6"/>
+            <rect x="25" y="26" width="22" height="4" fill="#183a59"/>
+            <rect x="25" y="34" width="22" height="3" fill="#9fb4c8"/>
+            <g id="stacks"></g>
+            <!-- mast at the bow -->
+            <line x1="200" y1="30" x2="200" y2="52" stroke="#eef2f6" stroke-width="1.5"/>
+            <circle cx="200" cy="29" r="1.8" fill="#ffd27a"/>
+            <!-- hull -->
+            <path d="M8 52 H214 L201 79 H28 Z" fill="#0e2235"/>
+            <path d="M14 66 H207 L201 79 H28 Z" fill="#8d1d2c"/>
+            <line x1="12" y1="56" x2="210" y2="56" stroke="#eef2f6" stroke-width="1" opacity=".5"/>
+          </svg>
+        </div>
+      </div>
+      <div class="wave mid"></div>
+      <div class="wave front"></div>
+    </div>
+
+    <button class="skip" id="skip" type="button">Skip ›</button>
+  </div>
+
+  <!-- ═══════════ Page ═══════════ -->
+  <header class="site-header">
+    <a class="brand" href="index.html#top">Xiaoyan Zhuang</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="index.html#news">News</a>
+      <a href="index.html#research">Research</a>
+      <a href="index.html#teaching">Teaching</a>
+      <a href="index.html#cv">CV</a>
+      <a href="index.html#contact">Contact</a>
+      <a href="personal.html" aria-current="page">Personal</a>
+    </nav>
+  </header>
+
+  <div class="rail" aria-hidden="true">
+    <span class="rail-ship" id="railShip"></span>
+  </div>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-text">
+        <p class="eyebrow reveal">Ship's log · Entry 01</p>
+        <h1 class="reveal">Off the Clock</h1>
+        <!-- ✎ EDIT: your own intro, in your voice -->
+        <p class="lede reveal">
+          The rest of this site is about what I study. This page is the rest of the voyage:
+          where I have dropped anchor, what keeps me busy ashore, and how I ended up thinking about ships.
+        </p>
+        <dl class="position reveal">
+          <dt>Position</dt><dd>40°47′N 77°51′W · State College, PA</dd>
+          <dt>Heading</dt><dd>2026–27 economics job market</dd>
+          <dt>Status</dt><dd><span class="live-dot"></span>Under way</dd>
+        </dl>
+      </div>
+      <div class="hero-compass reveal" aria-hidden="true">
+        <svg id="heroCompass" viewBox="-100 -100 200 200"></svg>
+      </div>
+    </section>
+
+    <section class="section" id="ports" aria-labelledby="ports-heading">
+      <div class="section-heading reveal">
+        <h2 id="ports-heading">Ports of Call</h2>
+        <p>(places I have dropped anchor)</p>
+      </div>
+      <div class="route reveal">
+        <svg viewBox="0 0 1000 200" aria-hidden="true">
+          <path class="guide" d="M125 150 C210 40 300 40 375 110 S540 190 625 120 C710 50 790 40 875 90"/>
+          <path class="sailed" id="sailed" d="M125 150 C210 40 300 40 375 110 S540 190 625 120"/>
+          <circle class="port" cx="125" cy="150" r="9"/>
+          <circle class="port" cx="375" cy="110" r="9"/>
+          <circle class="here-ring" cx="625" cy="120" r="9"/>
+          <circle class="port here" cx="625" cy="120" r="9"/>
+          <circle class="port next" cx="875" cy="90" r="11"/>
+          <text x="875" y="95" text-anchor="middle" font-family="Georgia" font-size="14" font-weight="700" fill="#b08d57">?</text>
+          <g id="routeShip">
+            <g transform="scale(1.6) translate(-18 -22)">
+              <path d="M2 16 H34 L30 24 H6 Z" fill="#0e2235"/>
+              <rect x="10" y="9" width="5" height="7" fill="#8d1d2c"/>
+              <rect x="16" y="9" width="5" height="7" fill="#183a59"/>
+              <rect x="22" y="9" width="5" height="7" fill="#b08d57"/>
+              <rect x="4" y="5" width="5" height="11" fill="#eef2f6"/>
+            </g>
+          </g>
+        </svg>
+        <ol class="port-list">
+          <!-- ✎ EDIT: fill in the first two ports -->
+          <li>
+            <span class="tag">Home port</span>
+            <h3>Your hometown</h3>
+            <p>Where the voyage started.</p>
+          </li>
+          <li>
+            <span class="tag">Waypoint</span>
+            <h3>Your previous university</h3>
+            <p>Degree · years.</p>
+          </li>
+          <li class="here">
+            <span class="tag">You are here</span>
+            <h3>State College, PA</h3>
+            <p>Ph.D. in Economics, Penn State.</p>
+          </li>
+          <li class="next">
+            <span class="tag">Next port</span>
+            <h3>To be announced</h3>
+            <p>On the 2026–27 job market.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section" id="deck" aria-labelledby="deck-heading">
+      <div class="section-heading reveal">
+        <h2 id="deck-heading">On Deck</h2>
+        <p>(what I do while the model is estimating)</p>
+      </div>
+      <!-- ✎ EDIT: replace the four descriptions with your own -->
+      <div class="deck-grid">
+        <article class="card reveal">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v14M5 13H3a9 9 0 0 0 18 0h-2M8 10h8"/></svg></div>
+          <h3>Shore leave</h3>
+          <p>How you spend a free weekend: a sport, a trail, a city you keep going back to.</p>
+        </article>
+        <article class="card reveal">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M8 7h7"/></svg></div>
+          <h3>Ship's library</h3>
+          <p>What you are reading now, or the one book you recommend to everyone.</p>
+        </article>
+        <article class="card reveal">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h14v3a6 6 0 0 1-6 6h-2a6 6 0 0 1-6-6z"/><path d="M18 12h1.5a2.5 2.5 0 0 1 0 5H17M8 3c0 2 2 2 2 4M12 3c0 2 2 2 2 4"/></svg></div>
+          <h3>The galley</h3>
+          <p>Something you love to cook, or the coffee order that fuels your research.</p>
+        </article>
+        <article class="card reveal">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="14" r="4"/><circle cx="17" cy="14" r="4"/><path d="M11 14h2M3 14l2-8h3M21 14l-2-8h-3"/></svg></div>
+          <h3>The lookout</h3>
+          <p>Photography, travel, or whatever you keep an eye out for.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="manifest" aria-labelledby="manifest-heading">
+      <div class="section-heading reveal">
+        <h2 id="manifest-heading">Cargo Manifest</h2>
+        <p>(a few numbers on board)</p>
+      </div>
+      <div class="manifest">
+        <div class="box" style="--c:#8d1d2c">
+          <span class="code">XZHU 000001</span>
+          <span class="num" data-count="1">0</span>
+          <p>job market paper on container shipping alliances</p>
+        </div>
+        <div class="box" style="--c:#183a59">
+          <span class="code">XZHU 202627</span>
+          <span class="num">2026–27</span>
+          <p>the season I am on the economics job market</p>
+        </div>
+        <div class="box" style="--c:#2f6f73">
+          <span class="code">XZHU 000080</span>
+          <span class="num"><span data-count="80">0</span>%</span>
+          <p>of world trade by volume travels by sea</p>
+          <small>Source: UNCTAD, Review of Maritime Transport</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="border-bottom:0" aria-labelledby="bottle-heading">
+      <div class="bottle-wrap reveal">
+        <svg class="bottle" viewBox="0 0 60 140" aria-hidden="true">
+          <rect x="22" y="4" width="16" height="12" rx="2" fill="#a07a4a"/>
+          <path d="M24 16 h12 v18 c0 6 14 12 14 26 v62 a12 12 0 0 1 -12 12 h-16 a12 12 0 0 1 -12 -12 v-62 c0 -14 14 -20 14 -26 z" fill="rgba(170,210,200,.28)" stroke="rgba(243,234,215,.75)" stroke-width="2"/>
+          <rect x="18" y="66" width="24" height="44" rx="2" fill="#f3ead7" transform="rotate(-8 30 88)"/>
+          <path d="M22 76 h14 M22 83 h16 M22 90 h12" stroke="#b08d57" stroke-width="1.5" transform="rotate(-8 30 88)"/>
+          <path d="M16 62 v52" stroke="rgba(255,255,255,.35)" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <h2 id="bottle-heading">Message in a bottle</h2>
+          <p>Questions about the paper, an invitation to present, or just want to talk ships? Send it my way.</p>
+          <a class="btn" href="index.html#contact">Send a message <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>© 2026 Xiaoyan Zhuang</span>
+    <button class="replay" id="replay" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="2"/><path d="M12 7v14M5 13H3a9 9 0 0 0 18 0h-2"/></svg>
+      Replay the voyage
+    </button>
+  </footer>
+
+  <script>
+  (function () {
+    var NS = 'http://www.w3.org/2000/svg';
+    function el(tag, attrs, parent) {
+      var n = document.createElementNS(NS, tag);
+      for (var k in attrs) n.setAttribute(k, attrs[k]);
+      if (parent) parent.appendChild(n);
+      return n;
+    }
+    function polar(r, deg) {
+      var a = (deg - 90) * Math.PI / 180;
+      return [(r * Math.cos(a)).toFixed(2), (r * Math.sin(a)).toFixed(2)];
+    }
+
+    /* ── compass rose ── */
+    function buildCompass(svg) {
+      el('circle', { r: 94, class: 'ring' }, svg);
+      el('circle', { r: 86, class: 'ring thin' }, svg);
+      el('circle', { r: 58, class: 'ring thin' }, svg);
+      var ticks = el('g', { class: 'ticks' }, svg);
+      for (var i = 0; i < 72; i++) {
+        var major = i % 9 === 0;
+        var a = polar(86, i * 5), b = polar(major ? 76 : 81, i * 5);
+        el('line', { x1: a[0], y1: a[1], x2: b[0], y2: b[1], class: major ? 'tick major' : 'tick' }, ticks);
+      }
+      var rose = el('g', { class: 'rose', style: 'transform-origin:0 0' }, svg);
+      [[45, 46, 9], [0, 72, 12]].forEach(function (set) {
+        for (var k = 0; k < 4; k++) {
+          var ang = set[0] + k * 90, tip = polar(set[1], ang);
+          var l = polar(set[2], ang - 45), r = polar(set[2], ang + 45);
+          el('polygon', { points: '0,0 ' + tip + ' ' + l, class: 'rose-light' }, rose);
+          el('polygon', { points: '0,0 ' + tip + ' ' + r, class: 'rose-dark' }, rose);
+        }
+      });
+      var letters = el('g', { class: 'letters' }, svg);
+      [['N', 0], ['E', 90], ['S', 180], ['W', 270]].forEach(function (p) {
+        var c = polar(66, p[1]);
+        // keep letters clear of the long points
+        c = polar(p[0] === 'N' || p[0] === 'S' ? 66 : 66, p[1]);
+        var t = el('text', { x: c[0], y: c[1], class: 'letter' }, letters);
+        t.textContent = p[0];
+      });
+      // move letters just outside the ring of ticks
+      letters.querySelectorAll('text').forEach(function (t, i) {
+        var c = polar(104, i * 90);
+        t.setAttribute('x', c[0]); t.setAttribute('y', c[1]);
+      });
+      var needle = el('g', { class: 'needle', style: 'transform-origin:0 0' }, svg);
+      el('polygon', { points: '0,-64 6,0 -6,0', class: 'needle-n' }, needle);
+      el('polygon', { points: '0,64 6,0 -6,0', class: 'needle-s' }, needle);
+      el('circle', { r: 5, class: 'cap' }, svg);
+    }
+    buildCompass(document.getElementById('introCompass'));
+    buildCompass(document.getElementById('heroCompass'));
+
+    /* ── containers on the ship ── */
+    var stacks = document.getElementById('stacks');
+    var colors = ['#8d1d2c', '#183a59', '#b08d57', '#2f6f73', '#c9d3de', '#5b7a99'];
+    var seed = 7;
+    function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+    for (var x = 56; x <= 182; x += 14) {
+      var h = x > 168 ? 2 : 3;
+      for (var row = 0; row < h; row++) {
+        el('rect', {
+          x: x, y: 40 - row * 11, width: 13, height: 10.4,
+          fill: colors[Math.floor(rnd() * colors.length)]
+        }, stacks);
+      }
+    }
+
+    /* ── stars ── */
+    var stars = document.getElementById('stars');
+    for (var s = 0; s < 90; s++) {
+      var i = document.createElement('i');
+      var size = rnd() < .85 ? 1.5 : 2.5;
+      i.style.cssText = 'left:' + (rnd() * 100) + '%;top:' + (rnd() * 92) + '%;width:' + size + 'px;height:' + size +
+        'px;animation-delay:' + (rnd() * 3).toFixed(2) + 's;animation-duration:' + (2 + rnd() * 3).toFixed(2) + 's';
+      stars.appendChild(i);
+    }
+
+    /* ── coordinates ticker ── */
+    function dms(v, pos, neg) {
+      var d = Math.floor(v), mf = (v - d) * 60, m = Math.floor(mf), sec = Math.floor((mf - m) * 60);
+      var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+      return pad(d) + '°' + pad(m) + '′' + pad(sec) + '″' + (v >= 0 ? pos : neg);
+    }
+    var latEl = document.getElementById('lat'), lonEl = document.getElementById('lon');
+    function tickCoords() {
+      var start = null, dur = 1900, LAT = 40.7934, LON = 77.86;
+      function frame(t) {
+        if (!start) start = t;
+        var p = Math.min((t - start) / dur, 1), e = 1 - Math.pow(1 - p, 3);
+        latEl.textContent = dms(LAT * e, 'N', 'S');
+        lonEl.textContent = dms(LON * e, 'W', 'E');
+        if (p < 1 && !leaving) requestAnimationFrame(frame);
+      }
+      setTimeout(function () { requestAnimationFrame(frame); }, 650);
+    }
+
+    /* ── choreography ── */
+    var voyage = document.getElementById('voyage');
+    var body = document.body;
+    var timers = [], leaving = false;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function land() {
+      if (leaving) return;
+      leaving = true;
+      timers.forEach(clearTimeout);
+      voyage.classList.add('leave');
+      body.classList.remove('sailing');
+      body.classList.add('ready');
+      setTimeout(function () { voyage.hidden = true; }, 1400);
+    }
+
+    function sail() {
+      leaving = false;
+      window.scrollTo(0, 0);
+      voyage.hidden = false;
+      body.classList.add('sailing');
+      body.classList.remove('ready');
+      voyage.classList.remove('run', 'leave');
+      void voyage.offsetWidth;          // restart CSS animations
+      voyage.classList.add('run');
+      tickCoords();
+      timers = [setTimeout(land, 4300)];
+    }
+
+    document.getElementById('skip').addEventListener('click', land);
+    voyage.addEventListener('click', function (e) { if (e.target === voyage) land(); });
+    document.addEventListener('keydown', function (e) { if (!leaving && (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ')) land(); });
+    document.getElementById('replay').addEventListener('click', sail);
+
+    if (reduce) {
+      voyage.hidden = true; leaving = true;
+      body.classList.remove('sailing'); body.classList.add('ready');
+      latEl.textContent = dms(40.7934, 'N', 'S'); lonEl.textContent = dms(77.86, 'W', 'E');
+    } else {
+      sail();
+    }
+
+    /* ── scroll reveals + count-ups ── */
+    function countUp(n) {
+      var target = +n.getAttribute('data-count'), start = null;
+      function f(t) {
+        if (!start) start = t;
+        var p = Math.min((t - start) / 1200, 1);
+        n.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+        if (p < 1) requestAnimationFrame(f);
+      }
+      requestAnimationFrame(f);
+    }
+    var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        en.target.classList.add('in');
+        en.target.querySelectorAll && en.target.querySelectorAll('[data-count]').forEach(countUp);
+        if (en.target.hasAttribute('data-count')) countUp(en.target);
+        io.unobserve(en.target);
+      });
+    }, { threshold: .2 }) : null;
+    document.querySelectorAll('main .reveal:not(.hero .reveal), .box').forEach(function (n) {
+      if (io) io.observe(n); else n.classList.add('in');
+    });
+
+    /* ── ship follows the route as you scroll ── */
+    var sailed = document.getElementById('sailed');
+    var routeShip = document.getElementById('routeShip');
+    var ports = document.getElementById('ports');
+    var L = sailed.getTotalLength();
+    sailed.style.strokeDasharray = L;
+    var railShip = document.getElementById('railShip');
+
+    function onScroll() {
+      var vh = window.innerHeight;
+      var top = ports.getBoundingClientRect().top;
+      var p = Math.max(0, Math.min(1, (vh * .9 - top) / (vh * .55)));
+      if (reduce) p = 1;
+      var at = L * p;
+      var shipAt = Math.min(at, L - 46);   // dock just short of "you are here"
+      var pt = sailed.getPointAtLength(shipAt), ahead = sailed.getPointAtLength(Math.min(L, shipAt + 2)),
+          behind = sailed.getPointAtLength(Math.max(0, shipAt - 2));
+      var ang = Math.atan2(ahead.y - behind.y, ahead.x - behind.x) * 180 / Math.PI;
+      ang = Math.max(-22, Math.min(22, ang));
+      routeShip.setAttribute('transform', 'translate(' + pt.x + ' ' + (pt.y - 4) + ') rotate(' + ang.toFixed(1) + ')');
+      sailed.style.strokeDashoffset = L - at;
+
+      var max = document.documentElement.scrollHeight - vh;
+      var q = max > 0 ? window.scrollY / max : 0;
+      railShip.style.top = (q * 100) + '%';
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+  })();
+  </script>
+</body>
+</html>
